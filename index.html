@@ -354,6 +354,38 @@
   footer .footer-link { text-decoration: underline; text-underline-offset: 3px; }
   footer .footer-link:hover { color: #fff; }
 
+
+  /* ---------- Modal de interesse (antes do checkout) ---------- */
+  .lead-modal { border: 0; padding: 0; background: transparent; color: var(--text); max-width: 480px; width: calc(100% - 32px); margin: auto; overflow: visible; }
+  .lead-modal::backdrop { background: rgba(3,5,9,.78); backdrop-filter: blur(6px); }
+  .lead-modal[open] { animation: pop .28s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+  .lead-box { position: relative; border-radius: 24px; padding: 34px 28px 26px; border: 1.5px solid transparent;
+    background: linear-gradient(#0b0d14, #0b0d14) padding-box, var(--grad) border-box;
+    box-shadow: 0 30px 80px -20px rgba(224,23,122,.45), 0 30px 80px -20px rgba(31,195,239,.35); }
+  .lead-close { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.06); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+  .lead-close:hover { background: rgba(255,255,255,.14); }
+  .lead-plan { display: inline-flex; gap: 8px; align-items: center; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font: 600 12px/1 "Lexend", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+  .lead-plan b { color: var(--cyan); font-weight: 700; }
+  .lead-box h2 { font-size: clamp(24px, 5vw, 30px); text-transform: uppercase; margin: 16px 0 10px; }
+  .lead-box > p { color: #d5d9e1; font-size: 15.5px; margin-bottom: 22px; }
+  .lead-field { display: block; margin-bottom: 14px; }
+  .lead-field span { display: block; font: 600 13px/1 "Lexend", sans-serif; letter-spacing: .04em; margin-bottom: 8px; color: #e7e9ee; }
+  .lead-field input { width: 100%; padding: 16px 18px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: #fff; font: 500 16px/1.2 "Inter", sans-serif; outline: none; transition: border-color .2s, background .2s; }
+  .lead-field input::placeholder { color: #6f7785; }
+  .lead-field input:focus { border-color: var(--cyan); background: rgba(31,195,239,.06); }
+  .lead-field input[aria-invalid="true"] { border-color: var(--pink); }
+  .lead-field small { display: none; color: #ff6fae; font-size: 13px; margin-top: 6px; }
+  .lead-field input[aria-invalid="true"] + small { display: block; }
+  .lead-box .btn { width: 100%; margin-top: 8px; }
+  .lead-box .btn[disabled] { opacity: .7; cursor: progress; }
+  .lead-trust { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 14px; color: var(--muted); font-size: 12.5px; }
+  .lead-trust span { display: inline-flex; align-items: center; gap: 6px; }
+  .lead-trust svg { width: 14px; height: 14px; }
+  .lead-box .lead-legal { margin: 14px 0 0; color: #8a92a0; font-size: 12px; line-height: 1.5; text-align: center; }
+  .lead-box .lead-legal a { color: #c7ccd5; text-decoration: underline; }
+  @media (max-width: 520px) { .lead-box { padding: 30px 20px 22px; } }
+
   /* Barra fixa mobile */
   .sticky-cta { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50; display: none; transform: translateY(140%); transition: transform .35s ease; }
   .sticky-cta.show { transform: none; }
@@ -669,6 +701,32 @@
   </div>
 </footer>
 
+<dialog class="lead-modal" id="leadModal" aria-labelledby="leadTitle">
+  <form class="lead-box" id="leadForm" novalidate>
+    <button type="button" class="lead-close" id="leadClose" aria-label="Fechar">&times;</button>
+    <span class="lead-plan">Vaga <b id="leadPlan">individual</b> · <span id="leadPrice">R$ 347</span></span>
+    <h2 id="leadTitle">Falta só um passo <span class="grad-text">para sua vaga</span></h2>
+    <p>As vagas são limitadas. Deixe seu nome e WhatsApp para <strong>reservar seu lugar</strong>: se acontecer qualquer imprevisto no pagamento, nossa equipe te chama para ajudar a finalizar.</p>
+    <label class="lead-field">
+      <span>Seu nome</span>
+      <input type="text" name="nome" id="leadName" autocomplete="name" placeholder="Como podemos te chamar?" required maxlength="120" data-clarity-mask="true">
+      <small>Informe seu nome.</small>
+    </label>
+    <label class="lead-field">
+      <span>WhatsApp com DDD</span>
+      <input type="tel" name="whatsapp" id="leadPhone" autocomplete="tel" inputmode="numeric" placeholder="(11) 91234-5678" required maxlength="16" data-clarity-mask="true">
+      <small>Informe um WhatsApp válido com DDD.</small>
+    </label>
+    <button type="submit" class="btn" id="leadSubmit">Ir para o pagamento seguro
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <div class="lead-trust">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>Checkout seguro Kiwify</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Sem spam</span>
+    </div>
+    <p class="lead-legal">Ao continuar, você concorda em ser contatado pelo WhatsApp. Veja a <a href="https://leadinghub.netlify.app/privacidade/pk_5f8882798c284cbdad3f468e9f21b137" target="_blank" rel="noopener">Política de privacidade</a>.</p>
+  </form>
+</dialog>
+
 <div class="sticky-cta" id="sticky"><a class="btn" href="#investimento" data-scroll>Garantir minha vaga</a></div>
 
 <script>
@@ -690,27 +748,97 @@
     a.href = withParams(cfg.CHECKOUT[plan] || a.href);
   });
 
-  /* ---------- Evento de LEAD ---------- */
-  function trackLead(plan, extra) {
+  /* ---------- Evento de LEAD (com nome e WhatsApp) ---------- */
+  function splitName(n) { var p = n.trim().split(/\s+/); return { fn: p[0] || '', ln: p.length > 1 ? p[p.length - 1] : '' }; }
+  function phoneE164(d) { return d.length >= 12 ? d : '55' + d; }
+
+  function trackLead(plan, contact, checkoutUrl) {
     var value = cfg.PRICE[plan] || 0;
     var data = { content_name: 'Mentoria Videomaker PraCima', content_category: plan, value: value, currency: 'BRL' };
     var eventID = window.newEventId('lead');
-    if (window.fbq) fbq('track', 'Lead', data, { eventID: eventID });
-    window.sendCapi('Lead', eventID, data);
-    if (window.clarity) { clarity('set', 'plano', plan); clarity('event', 'lead_checkout'); }
-    window.dataLayer.push(Object.assign({ event: 'generate_lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID }, extra || {}));
+    var nm = splitName(contact.name);
+    var ph = phoneE164(contact.digits);
+
+    /* Pixel: correspondência avançada (o pixel faz o hash) */
+    if (window.fbq && cfg.META_PIXEL_ID) {
+      fbq('init', cfg.META_PIXEL_ID, { external_id: window.LP_VID, ph: ph, fn: nm.fn.toLowerCase(), ln: nm.ln.toLowerCase(), country: 'br' });
+      fbq('track', 'Lead', data, { eventID: eventID });
+    }
+    window.sendCapi('Lead', eventID, Object.assign({ phone: ph, first_name: nm.fn, last_name: nm.ln }, data));
+    if (window.clarity) { clarity('set', 'plano', plan); clarity('event', 'lead_form'); }
+    window.dataLayer.push({ event: 'generate_lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID, checkout_url: checkoutUrl });
+
+    /* Lead Hub: cria a linha na planilha com nome, WhatsApp e plano */
+    if (window.LeadHub) {
+      try {
+        LeadHub.set({ 'Plano': plan === 'dupla' ? 'Dupla (R$ 297/pessoa)' : 'Individual (R$ 347)', 'Etapa': 'Foi para o checkout' });
+        LeadHub.identify({ name: contact.name, phone: contact.phone });
+        LeadHub.whatsappUrl('https://wa.me/' + ph);
+      } catch (e) {}
+    }
   }
+
+  /* ---------- Modal de interesse ---------- */
+  var modal = document.getElementById('leadModal');
+  var form = document.getElementById('leadForm');
+  var nameEl = document.getElementById('leadName');
+  var phoneEl = document.getElementById('leadPhone');
+  var submitEl = document.getElementById('leadSubmit');
+  var current = null;
+
+  function maskPhone(v) {
+    var d = v.replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 2) return d.length ? '(' + d : '';
+    if (d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+    return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+  }
+  phoneEl.addEventListener('input', function () { phoneEl.value = maskPhone(phoneEl.value); phoneEl.removeAttribute('aria-invalid'); });
+  nameEl.addEventListener('input', function () { nameEl.removeAttribute('aria-invalid'); });
+
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('pc_contact') || 'null');
+    if (saved) { nameEl.value = saved.name || ''; phoneEl.value = saved.phone || ''; }
+  } catch (e) {}
+
+  function openModal(plan, href) {
+    current = { plan: plan, href: href };
+    document.getElementById('leadPlan').textContent = plan === 'dupla' ? 'em dupla' : 'individual';
+    document.getElementById('leadPrice').textContent = plan === 'dupla' ? 'R$ 297/pessoa' : 'R$ 347';
+    submitEl.disabled = false;
+    if (modal.showModal) modal.showModal(); else modal.setAttribute('open', '');
+    setTimeout(function () { (nameEl.value ? phoneEl : nameEl).focus(); }, 50);
+    if (window.clarity) clarity('event', 'abriu_formulario');
+    window.dataLayer.push({ event: 'lead_form_open', lead_plan: plan });
+  }
+  function closeModal() { if (modal.close) modal.close(); else modal.removeAttribute('open'); }
+  document.getElementById('leadClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
 
   document.querySelectorAll('[data-checkout]').forEach(function (a) {
     a.addEventListener('click', function (e) {
-      var plan = a.getAttribute('data-checkout');
-      var href = a.href;
-      trackLead(plan, { checkout_url: href });
-      /* aguarda o pixel disparar antes de sair da página (exceto nova aba) */
-      if (e.metaKey || e.ctrlKey || e.shiftKey || a.target === '_blank') return;
       e.preventDefault();
-      setTimeout(function () { location.href = href; }, 300);
+      openModal(a.getAttribute('data-checkout'), a.href);
     });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = nameEl.value.trim().replace(/\s+/g, ' ');
+    var digits = phoneEl.value.replace(/\D/g, '');
+    var okName = name.length >= 2;
+    var okPhone = /^[1-9]{2}9?\d{8}$/.test(digits);
+    if (!okName) nameEl.setAttribute('aria-invalid', 'true'); else nameEl.removeAttribute('aria-invalid');
+    if (!okPhone) phoneEl.setAttribute('aria-invalid', 'true'); else phoneEl.removeAttribute('aria-invalid');
+    if (!okName) return nameEl.focus();
+    if (!okPhone) return phoneEl.focus();
+
+    var contact = { name: name, phone: maskPhone(digits), digits: digits };
+    try { sessionStorage.setItem('pc_contact', JSON.stringify({ name: contact.name, phone: contact.phone })); } catch (e2) {}
+    submitEl.disabled = true;
+    trackLead(current.plan, contact, current.href);
+    /* aguarda os envios saírem antes de ir para a Kiwify */
+    setTimeout(function () { location.href = current.href; }, 450);
   });
 
   /* ---------- Scroll suave para âncoras ---------- */

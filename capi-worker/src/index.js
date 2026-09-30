@@ -45,6 +45,12 @@ export default {
       fbc: clean(body.fbc),
       external_id: body.external_id ? [await sha256(String(body.external_id))] : undefined,
     };
+    // Contato digitado no formulário da LP (enviado já normalizado, aqui só o hash)
+    const phone = String(body.phone || '').replace(/\D/g, '');
+    if (phone.length >= 10) userData.ph = [await sha256(phone)];
+    if (body.first_name) userData.fn = [await sha256(normalizeName(body.first_name))];
+    if (body.last_name) userData.ln = [await sha256(normalizeName(body.last_name))];
+
     const cf = request.cf || {};
     if (cf.city) userData.ct = [await sha256(normalize(cf.city))];
     if (cf.regionCode) userData.st = [await sha256(normalize(cf.regionCode))];
@@ -107,6 +113,10 @@ function json(data, status, headers) {
 
 function clean(v) {
   return typeof v === 'string' && v.length && v.length < 500 ? v : undefined;
+}
+
+function normalizeName(v) {
+  return String(v).trim().toLowerCase().replace(/[^\p{L}]/gu, '');
 }
 
 function normalize(v) {
