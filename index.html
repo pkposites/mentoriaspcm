@@ -22,6 +22,7 @@
   window.LP_CONFIG = {
     META_PIXEL_ID: "731525046334517",
     GTM_ID: "",          // ex.: "GTM-XXXXXXX"
+    CAPI_URL: "",        // URL do Worker Cloudflare, ex.: "https://pracima-capi.SEU-USUARIO.workers.dev/event"
     CHECKOUT: {
       individual: "https://pay.kiwify.com.br/su0F0XV",
       dupla: "https://pay.kiwify.com.br/12x3RTL"
@@ -30,8 +31,31 @@
   };
 </script>
 
-<!-- Meta Pixel -->
+<!-- Meta Pixel + Conversions API -->
 <script>
+  (function () {
+    function uid(p) { return p + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10); }
+    function cookie(n) { var m = document.cookie.match('(?:^|; )' + n + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : undefined; }
+    var vid;
+    try { vid = localStorage.getItem('pc_vid'); if (!vid) { vid = uid('v'); localStorage.setItem('pc_vid', vid); } } catch (e) { vid = uid('v'); }
+    function fbc() {
+      var c = cookie('_fbc'); if (c) return c;
+      var id = new URLSearchParams(location.search).get('fbclid');
+      return id ? 'fb.1.' + Date.now() + '.' + id : undefined;
+    }
+    /* Envia o evento para o Worker (CAPI) com o mesmo event_id do Pixel */
+    window.sendCapi = function (eventName, eventId, data) {
+      var url = window.LP_CONFIG.CAPI_URL; if (!url) return;
+      var body = JSON.stringify(Object.assign({
+        event_name: eventName, event_id: eventId, event_source_url: location.href,
+        fbp: cookie('_fbp'), fbc: fbc(), external_id: vid
+      }, data || {}));
+      try { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true, mode: 'cors' }).catch(function () {}); } catch (e) {}
+    };
+    window.newEventId = uid;
+    window.LP_VID = vid;
+  })();
+
   (function (id) {
     if (!id) return;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -39,8 +63,11 @@
     n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
     document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', id);
-    fbq('track', 'PageView');
+    fbq('init', id, { external_id: window.LP_VID });
+    var pv = window.newEventId('pv');
+    fbq('track', 'PageView', {}, { eventID: pv });
+    /* espera o pixel criar o cookie _fbp antes de mandar para o servidor */
+    setTimeout(function () { window.sendCapi('PageView', pv); }, 1200);
   })(window.LP_CONFIG.META_PIXEL_ID);
 </script>
 
@@ -622,8 +649,9 @@
   function trackLead(plan, extra) {
     var value = cfg.PRICE[plan] || 0;
     var data = { content_name: 'Mentoria Videomaker PraCima', content_category: plan, value: value, currency: 'BRL' };
-    var eventID = 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    var eventID = window.newEventId('lead');
     if (window.fbq) fbq('track', 'Lead', data, { eventID: eventID });
+    window.sendCapi('Lead', eventID, data);
     window.dataLayer.push(Object.assign({ event: 'lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID }, extra || {}));
     if (window.gtag) gtag('event', 'generate_lead', { value: value, currency: 'BRL', plan: plan });
   }

@@ -1,0 +1,11 @@
+name = "pracima-capi"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+PIXEL_ID = "731525046334517"
+ALLOWED_ORIGINS = "https://mentoriapracimalp.netlify.app"
+GRAPH_VERSION = "v23.0"
+# TEST_EVENT_CODE = "TEST12345"  # descomente para ver os eventos em "Testar eventos"
+
+# O token NÃO vai aqui. Rode: npx wrangler secret put META_ACCESS_TOKEN
