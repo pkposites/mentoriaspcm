@@ -31,21 +31,43 @@
   };
 </script>
 
-<!-- Meta Pixel + Conversions API -->
+<!-- Consentimento (LGPD): Pixel, CAPI e Clarity só rodam depois do aceite no banner do Lead Hub -->
 <script>
   (function () {
     function uid(p) { return p + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10); }
     function cookie(n) { var m = document.cookie.match('(?:^|; )' + n + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : undefined; }
+    function consentStatus() {
+      try { if (window.LeadHub && window.LeadHub.consentStatus) return window.LeadHub.consentStatus(); } catch (e) {}
+      try { return localStorage.getItem('lh_consent') || 'pending'; } catch (e) { return 'pending'; }
+    }
+    window.hasConsent = function () { var c = consentStatus(); return c === 'granted' || c === 'not_required'; };
+
+    /* Executa cb quando a pessoa aceitar os cookies (na hora, se já aceitou antes) */
+    var waiting = [];
+    window.whenConsented = function (cb) {
+      if (window.hasConsent()) return cb();
+      waiting.push(cb);
+    };
+    (function poll(n) {
+      if (!waiting.length && n > 0 && window.hasConsent()) return;
+      if (window.hasConsent()) { var list = waiting.splice(0); list.forEach(function (f) { try { f(); } catch (e) {} }); return; }
+      if (n < 3600) setTimeout(function () { poll(n + 1); }, 500);
+    })(0);
+
+    /* ID anônimo do visitante: só é gravado no aparelho depois do aceite */
     var vid;
-    try { vid = localStorage.getItem('pc_vid'); if (!vid) { vid = uid('v'); localStorage.setItem('pc_vid', vid); } } catch (e) { vid = uid('v'); }
+    try { vid = localStorage.getItem('pc_vid'); } catch (e) {}
+    if (!vid) vid = uid('v');
+    window.whenConsented(function () { try { localStorage.setItem('pc_vid', vid); } catch (e) {} });
+
     function fbc() {
       var c = cookie('_fbc'); if (c) return c;
       var id = new URLSearchParams(location.search).get('fbclid');
       return id ? 'fb.1.' + Date.now() + '.' + id : undefined;
     }
-    /* Envia o evento para o Worker (CAPI) com o mesmo event_id do Pixel */
+    /* Envia o evento para o Worker (CAPI) com o mesmo event_id do Pixel — só com consentimento */
     window.sendCapi = function (eventName, eventId, data) {
-      var url = window.LP_CONFIG.CAPI_URL; if (!url) return;
+      var url = window.LP_CONFIG.CAPI_URL; if (!url || !window.hasConsent()) return;
       var body = JSON.stringify(Object.assign({
         event_name: eventName, event_id: eventId, event_source_url: location.href,
         fbp: cookie('_fbp'), fbc: fbc(), external_id: vid
@@ -55,7 +77,10 @@
     window.newEventId = uid;
     window.LP_VID = vid;
   })();
+</script>
 
+<!-- Meta Pixel -->
+<script>
   (function (id) {
     if (!id) return;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -63,17 +88,23 @@
     n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
     document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    if (!window.hasConsent()) fbq('consent', 'revoke');
     fbq('init', id, { external_id: window.LP_VID });
     var pv = window.newEventId('pv');
     fbq('track', 'PageView', {}, { eventID: pv });
-    /* espera o pixel criar o cookie _fbp antes de mandar para o servidor */
-    setTimeout(function () { window.sendCapi('PageView', pv); }, 1200);
+    /* CAPI: depois do aceite, com tempo para o pixel criar o cookie _fbp */
+    window.whenConsented(function () { setTimeout(function () { window.sendCapi('PageView', pv); }, 1200); });
   })(window.LP_CONFIG.META_PIXEL_ID);
 </script>
+
+<!-- Lead Hub -->
+<script src="https://leadinghub.netlify.app/tracker.js" data-key="pk_5f8882798c284cbdad3f468e9f21b137" data-consent="banner" async></script>
 
 <!-- Google Tag Manager -->
 <script>
   window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
   (function (id) {
     if (!id) return;
     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -84,13 +115,15 @@
   })(window.LP_CONFIG.GTM_ID);
 </script>
 
-<!-- Microsoft Clarity -->
+<!-- Microsoft Clarity (carrega só depois do aceite) -->
 <script type="text/javascript">
+  window.whenConsented(function () {
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "yq57pf6l93");
+  });
 </script>
 
 <style>
@@ -318,6 +351,8 @@
   footer { border-top: 1px solid var(--line); padding: 36px 0 110px; color: var(--muted); font-size: 13px; }
   footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
   footer img { width: 150px; }
+  footer .footer-link { text-decoration: underline; text-underline-offset: 3px; }
+  footer .footer-link:hover { color: #fff; }
 
   /* Barra fixa mobile */
   .sticky-cta { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50; display: none; transform: translateY(140%); transition: transform .35s ease; }
@@ -630,6 +665,7 @@
   <div class="wrap">
     <img src="assets/logo-pracima.png" alt="PraCima Company" width="740" height="175" loading="lazy">
     <span>© <span id="y">2026</span> PraCima Company · Mentoria Videomaker PraCima</span>
+    <a class="footer-link" href="https://leadinghub.netlify.app/privacidade/pk_5f8882798c284cbdad3f468e9f21b137" target="_blank" rel="noopener">Política de privacidade</a>
   </div>
 </footer>
 
@@ -662,8 +698,7 @@
     if (window.fbq) fbq('track', 'Lead', data, { eventID: eventID });
     window.sendCapi('Lead', eventID, data);
     if (window.clarity) { clarity('set', 'plano', plan); clarity('event', 'lead_checkout'); }
-    window.dataLayer.push(Object.assign({ event: 'lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID }, extra || {}));
-    if (window.gtag) gtag('event', 'generate_lead', { value: value, currency: 'BRL', plan: plan });
+    window.dataLayer.push(Object.assign({ event: 'generate_lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID }, extra || {}));
   }
 
   document.querySelectorAll('[data-checkout]').forEach(function (a) {
@@ -693,7 +728,7 @@
     new IntersectionObserver(function (en) { pricingVisible = en[0].isIntersecting; onScroll(); }, { threshold: 0.1 }).observe(pricing);
   }
   function onScroll() {
-    sticky.classList.toggle('show', window.scrollY > window.innerHeight * 0.8 && !pricingVisible);
+    sticky.classList.toggle('show', window.scrollY > window.innerHeight * 0.8 && !pricingVisible && !document.querySelector('[data-leadhub-consent]'));
   }
   window.addEventListener('scroll', onScroll, { passive: true });
 
