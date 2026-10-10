@@ -240,6 +240,13 @@
   .hero-note { color: var(--muted); margin-top: 12px; max-width: 560px; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; align-items: center; }
   .hero-prices { display: flex; gap: 28px; margin-top: 30px; flex-wrap: wrap; }
+  .event-info { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .event-chip { display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 12px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,.04); backdrop-filter: blur(6px); transition: border-color .2s, background .2s; }
+  a.event-chip:hover { border-color: rgba(31,195,239,.5); background: rgba(31,195,239,.06); }
+  .event-ico { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--grad); }
+  .event-ico svg { width: 20px; height: 20px; color: #fff; }
+  .event-chip small { display: block; color: var(--muted); font: 600 11px/1 "Lexend", sans-serif; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 5px; }
+  .event-chip b { font: 600 15px/1.2 "Lexend", sans-serif; }
   .hero-prices div { border-left: 2px solid; border-image: var(--grad) 1; padding-left: 14px; }
   .hero-prices b { font: 700 22px/1.1 "Lexend", sans-serif; display: block; }
   .hero-prices small { color: var(--muted); font-size: 13px; }
@@ -413,7 +420,8 @@
     .hero-copy { padding: 110px 0 0; text-align: center; }
     .hero-logo { margin: 0 auto 28px; width: 180px; }
     .hero-sub, .hero-note { margin-left: auto; margin-right: auto; }
-    .hero-cta, .hero-prices { justify-content: center; }
+    .hero-cta, .hero-prices, .event-info { justify-content: center; }
+    .event-chip { text-align: left; }
     .hero-photo img { margin: 0 auto; max-width: 360px; }
     .who { grid-template-columns: 1fr; }
     .pricing { grid-template-columns: minmax(0, 460px); }
@@ -429,6 +437,8 @@
     .wrap { padding: 0 16px; }
     .topbar { font-size: 10px; letter-spacing: .1em; }
     .pill { font-size: 10px; letter-spacing: .08em; padding: 8px 12px; gap: 8px; }
+    .event-info { flex-direction: column; }
+    .event-chip { width: 100%; }
     .card { padding: 26px 22px; }
     .steps { grid-template-columns: 1fr; }
     .btn { padding: 18px 26px; font-size: 14px; }
@@ -449,10 +459,14 @@
 
     <div class="hero-copy reveal">
       <img class="hero-logo" src="assets/logo-pracima.png" alt="PraCima Company" width="740" height="175">
-      <span class="pill"><i></i>Imersão presencial · Outubro · Vagas limitadas</span>
+      <span class="pill"><i></i>Imersão presencial · 08/11 · Vagas limitadas</span>
       <h1><span>Mentoria</span><span class="grad-text">Videomaker</span><span>PraCima</span></h1>
       <p class="hero-sub">Da ideia ao vídeo pronto: aprenda a <strong>pensar, captar e editar</strong> conteúdos que prendem atenção e ajudam empresas a vender.</p>
       <p class="hero-note">Uma imersão prática para transformar o celular em uma ferramenta profissional de conteúdo. Um dia inteiro de prática, correção e aplicação.</p>
+      <div class="event-info">
+        <div class="event-chip"><span class="event-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span><div><small>Data</small><b>8 de novembro · domingo</b></div></div>
+        <a class="event-chip" href="https://www.google.com/maps/search/?api=1&amp;query=Audit%C3%B3rio+Rossi+Duque+de+Caxias+RJ" target="_blank" rel="noopener"><span class="event-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><small>Local</small><b>Auditório Rossi · Duque de Caxias</b></div></a>
+      </div>
       <div class="hero-cta">
         <a class="btn" href="#investimento" data-scroll>Quero garantir minha vaga
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -620,7 +634,7 @@
     <div class="section-head center reveal">
       <span class="eyebrow">Investimento</span>
       <h2>Garanta sua vaga na <span class="grad-text">Mentoria Videomaker</span></h2>
-      <p>Outubro • Vagas limitadas. Inscreva-se sozinho ou aproveite a condição especial em dupla.</p>
+      <p>08/11 • Auditório Rossi, Duque de Caxias • Vagas limitadas. Inscreva-se sozinho ou aproveite a condição especial em dupla.</p>
     </div>
 
     <div class="pricing">
@@ -670,7 +684,8 @@
     <div class="faq">
       <details class="reveal"><summary>Preciso ter câmera profissional?</summary><p>Não. A imersão é pensada para transformar o celular em uma ferramenta profissional de conteúdo. Você aprende a configurar o aparelho, enquadrar, iluminar e captar áudio com o que já tem.</p></details>
       <details class="reveal"><summary>Nunca editei um vídeo. Consigo acompanhar?</summary><p>Sim. Você passa pelo processo completo, da estratégia à exportação no CapCut, com prática e correção dos especialistas durante o encontro.</p></details>
-      <details class="reveal"><summary>A mentoria é online ou presencial?</summary><p>É uma imersão presencial: um dia inteiro de prática, correção e aplicação, em outubro.</p></details>
+      <details class="reveal"><summary>A mentoria é online ou presencial?</summary><p>É uma imersão presencial: um dia inteiro de prática, correção e aplicação, no dia 8 de novembro (domingo).</p></details>
+      <details class="reveal"><summary>Onde vai ser?</summary><p>No Auditório Rossi, em Duque de Caxias (RJ). <a href="https://www.google.com/maps/search/?api=1&amp;query=Audit%C3%B3rio+Rossi+Duque+de+Caxias+RJ" target="_blank" rel="noopener" style="color:#1fc3ef;text-decoration:underline">Ver no mapa</a>.</p></details>
       <details class="reveal"><summary>Como funciona a inscrição em dupla?</summary><p>Na inscrição em dupla o valor fica R$ 297 por pessoa. É ideal para o dono da empresa levar um colaborador, ou para duas pessoas que querem aprender juntas.</p></details>
       <details class="reveal"><summary>Posso parcelar?</summary><p>Sim. O parcelamento está disponível no checkout, conforme as condições da plataforma de pagamento.</p></details>
       <details class="reveal"><summary>Sou videomaker. Vale a pena para mim?</summary><p>Vale. Saber editar não é dominar o processo inteiro. Você aprofunda roteiro, hook, captação, luz, áudio, direção e estratégia com quem aplica esse processo todos os dias na PraCima Company.</p></details>
@@ -681,7 +696,7 @@
 <!-- ================= CTA FINAL ================= -->
 <section class="glow final">
   <div class="wrap reveal">
-    <span class="eyebrow">Outubro · Vagas limitadas</span>
+    <span class="eyebrow">08/11 · Auditório Rossi · Duque de Caxias</span>
     <h2>Da ideia ao vídeo pronto. <span class="grad-text">Com quem faz todos os dias.</span></h2>
     <p>Aprenda a pensar, captar e editar conteúdos que prendem atenção e ajudam empresas a vender.</p>
     <div class="hero-cta">
