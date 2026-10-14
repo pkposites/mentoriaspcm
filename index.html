@@ -27,7 +27,8 @@
       individual: "https://pay.kiwify.com.br/su0F0XV",
       dupla: "https://pay.kiwify.com.br/12x3RTL"
     },
-    PRICE: { individual: 347, dupla: 594 } // dupla = 2 x R$ 297
+    PRICE: { individual: 347, dupla: 594 }, // dupla = 2 x R$ 297
+    LEAD_FORM: false     // true = pede nome e WhatsApp antes do checkout; false = vai direto para a Kiwify
   };
 </script>
 
@@ -771,6 +772,16 @@
     var value = cfg.PRICE[plan] || 0;
     var data = { content_name: 'Mentoria Videomaker PraCima', content_category: plan, value: value, currency: 'BRL' };
     var eventID = window.newEventId('lead');
+
+    /* Sem formulário: Lead na ida para a Kiwify, sem dados de contato */
+    if (!contact) {
+      if (window.fbq && cfg.META_PIXEL_ID) fbq('track', 'Lead', data, { eventID: eventID });
+      window.sendCapi('Lead', eventID, data);
+      if (window.clarity) { clarity('set', 'plano', plan); clarity('event', 'lead_checkout'); }
+      window.dataLayer.push({ event: 'generate_lead', lead_plan: plan, value: value, currency: 'BRL', event_id: eventID, checkout_url: checkoutUrl });
+      return;
+    }
+
     var nm = splitName(contact.name);
     var ph = phoneE164(contact.digits);
 
@@ -832,8 +843,13 @@
 
   document.querySelectorAll('[data-checkout]').forEach(function (a) {
     a.addEventListener('click', function (e) {
+      var plan = a.getAttribute('data-checkout');
+      if (cfg.LEAD_FORM) { e.preventDefault(); return openModal(plan, a.href); }
+      /* Direto para a Kiwify: marca o Lead e segue (nova aba não precisa esperar) */
+      trackLead(plan, null, a.href);
+      if (e.metaKey || e.ctrlKey || e.shiftKey || a.target === '_blank') return;
       e.preventDefault();
-      openModal(a.getAttribute('data-checkout'), a.href);
+      setTimeout(function () { location.href = a.href; }, 300);
     });
   });
 
